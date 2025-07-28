@@ -3,13 +3,14 @@ const path = require("path");
 const anexosController = {};
 
 anexosController.anexosProductos = (request, response) => {
+  var nombre = request.params.nombre
   var upload = multer({
     storage: multer.diskStorage({
       destination: (req, file, cb) => {
         cb(null, appRoot + "/imagenes/");
       },
       filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        cb(null, nombre);
       },
     }),
     fileFilter: (req, file, cb) => {
@@ -21,13 +22,13 @@ anexosController.anexosProductos = (request, response) => {
         ext !== ".jpeg"
       ) {
         cb("Solo aceptamos formatos de imagen", null);
+      } else {
+        cb(null, true)
       }
-    },
+    }
   }).single("file");
   upload(request, response, (err) => {
     if (err) {
-      console.log("-----------");
-      console.log(err);
       response.json({ estado: false, error: err });
     } else {
       response.json({ estado: true, mensaje: "Archivo cargado" });
