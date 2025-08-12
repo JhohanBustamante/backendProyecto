@@ -11,7 +11,6 @@ const usuarioSchema = new Schema({
   rol: String,
   contrasena: String,
   estado: String,
-  cedula: String,
 });
 
 const modelo = mongoose.model("usuarios", usuarioSchema);
@@ -22,10 +21,29 @@ usuariosModels.registro = (post, callback) => {
   instancia.apellido = post.apellido;
   instancia.correo = post.correo;
   instancia.contrasena = post.contrasena;
-  instancia.cedula = post.cedula; 
   instancia.estado = "inactivo";
   instancia.rol = "cliente";
   instancia.codigoReg = post.codigoReg;
+
+  instancia
+    .save()
+    .then((respuesta) => {
+      return callback({ estado: true, respuesta });
+    })
+    .catch((error) => {
+      console.log(error);
+      return callback({ estado: false });
+    });
+};
+
+usuariosModels.guardar = (post, callback) => {
+  const instancia = new modelo();
+  instancia.nombre = post.nombre;
+  instancia.apellido = post.apellido;
+  instancia.correo = post.correo;
+  instancia.contrasena = post.contrasena;
+  instancia.estado = "Activo";
+  instancia.rol = "Cliente";
 
   instancia
     .save()
@@ -44,6 +62,15 @@ usuariosModels.buscar = (post, callback) => {
   })
 }
 
+usuariosModels.admin = (post, callback) => {
+  modelo.findOneAndUpdate(
+    { correo: post.correo},
+    { rol: "Administrador" }
+  ).then((respuesta) => {
+    return callback(respuesta);
+  });
+};
+
 usuariosModels.activar = (post, callback) => {
   modelo.findOneAndUpdate(
     { correo: post.correo, codigoReg: post.codigo },
@@ -56,6 +83,18 @@ usuariosModels.activar = (post, callback) => {
 usuariosModels.iniciar = (post, callback) => {
   modelo.find({correo: post.correo, contrasena: post.contrasena} , {contrasena: 0, _id: 0,}).then((respuesta)=>{
     return callback(respuesta);
+  })
+}
+
+usuariosModels.cargarId = (post, callback) => {
+  modelo.findById(post._id,{__v:0, contrasena:0}).then((resultado)=>{
+    return callback({datos:resultado})
+  })
+}
+
+usuariosModels.actualizar = (post, callback) => {
+  modelo.findByIdAndUpdate( post._id, {nombre:post.nombre, apellido:post.apellido, estado:post.estado, rol:post.rol, contrasena:post.contrasena }, {contrasena: 0,__v:0}).then((resultado)=>{
+    return callback({datos: resultado})
   })
 }
 

@@ -28,7 +28,6 @@ usuariosController.registrar = (request, response) => {
     });
     return false;
   }
-
   usuariosModels.buscar(post, (resultado) => {
     if (resultado.length !== 0) {
       response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
@@ -43,8 +42,6 @@ usuariosController.registrar = (request, response) => {
         response.json({ estado: false, mensaje: "Error en registro" });
         return false;
       } else {
-        console.log("----------->");
-        console.log(respuesta);
         response.json({ estado: true, respuesta });
       }
 
@@ -102,6 +99,48 @@ usuariosController.registrar = (request, response) => {
   });
 };
 
+usuariosController.guardar = (request, response) => {
+  const post = {
+    nombre: request.body.nombre,
+    apellido: request.body.apellido,
+    correo: request.body.correo.toLowerCase(),
+    contrasena: request.body.contrasena,
+  };
+  if (validacion.correoContrasena(post) == "datos") {
+    response.json({
+      estado: false,
+      mensaje: "Ingresa correo, contraseña, nombre y apellido",
+    });
+    return false;
+  } else if (validacion.correoContrasena(post) == "correo") {
+    response.json({ estado: false, mensaje: "Correo no válido" });
+
+    return false;
+  } else if (validacion.correoContrasena(post) == "contrasena") {
+    response.json({
+      estado: false,
+      mensaje:
+        "Contraseña no valida. Debe tener entre 10 y 15 caracteres, 2 minúsculas y 1 mayúscula",
+    });
+    return false;
+  }
+  usuariosModels.buscar(post, (resultado) => {
+    if (resultado.length !== 0) {
+      response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
+      return false;
+    }
+        
+    usuariosModels.guardar(post, (respuesta) => {
+      if (respuesta.estado == false) {
+        response.json({ estado: false, mensaje: "Error al guardar" });
+        return false;
+      } else {
+        response.json({ estado: true, respuesta });
+      }
+    });
+  });
+};
+
 usuariosController.buscar = (request, response) => {
   post = {
     correo: request.body.correo.toLowerCase(),
@@ -122,7 +161,6 @@ usuariosController.activar = (request, response) => {
     correo: request.body.correo,
     codigo: request.body.codigo,
   };
-  console.log(post)
   usuariosModels.buscar(post, (resultado) => {
     if (resultado.length == 0) {
       response.json({ estado: false, mensaje: "Correo inválido" });
@@ -181,5 +219,39 @@ usuariosController.iniciar = (request, response) => {
     post.contrasena = sha256(post.contrasena + config.claveSecreta);
   }
 };
+
+usuariosController.cargarId = (request, response) => {
+  post = {
+    _id: request.params._id
+  }
+  if(post._id == "" || post._id == undefined || post._id == null){
+    response.json( {estado: false , mensaje:"_id no cargado"} )
+  } else if(post._id.length !== 24){
+    response.json( {estado: false , mensaje:"Cantidad de caracteres erroneo"} )
+  }else {
+    usuariosModels.cargarId(post, (resultado)=>{
+      response.json({estado:true, datos: resultado})
+    })
+  } 
+}
+
+usuariosController.actualizar = (request, response) => {
+  post = {
+    _id: request.body._id,
+    nombre: request.body.nombre,
+    apellido: request.body.apellido,
+    contrasena: request.body.contrasena,
+    rol: request.body.rol,
+    estado: request.body.estado
+  }
+  post.contrasena = sha256(post.contrasena + config.claveSecreta)
+  if(post.nombre == "" || post._id == "" ||  post._id.length !== 24){
+    response.json({estado:false, mensaje:"Datos invalidos"})
+  } else {
+    usuariosModels.actualizar(post, (resultado)=>{
+      response.json({estado:true, datos:resultado})
+    })
+  }
+}
 
 module.exports.usuarios = usuariosController;

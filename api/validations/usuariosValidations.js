@@ -28,8 +28,6 @@ validaciones.inicio = (post) => {
   let existencia = datosNoPermitidos.findIndex(
     (dato) => dato == post.correo || dato == post.contrasena
   );
-  console.log("Hola");
-  console.log(existencia);
   if (existencia >= 0) {
     return "datos";
   } else if (!validacionCorreo.test(post.correo)) {

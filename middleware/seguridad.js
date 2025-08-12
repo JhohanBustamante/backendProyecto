@@ -7,7 +7,7 @@ security.admin = (request, response, next) => {
         return false;
     }
     else {
-        if(rol != "Administador"){
+        if(rol != "Administrador"){
             response.json({estado:false, mensaje:"No tienes acceso a esta API"});
             return false;
         } else {
