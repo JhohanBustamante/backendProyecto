@@ -57,14 +57,14 @@ usuariosModels.guardar = (post, callback) => {
 };
 
 usuariosModels.buscar = (post, callback) => {
-  modelo.find({correo: post.correo} , {contrasena: 0, _id: 0,}).then((respuesta)=>{
+  modelo.find({ correo: post.correo }, { contrasena: 0, _id: 0, }).then((respuesta) => {
     return callback(respuesta);
   })
 }
 
 usuariosModels.admin = (post, callback) => {
   modelo.findOneAndUpdate(
-    { correo: post.correo},
+    { correo: post.correo },
     { rol: "Administrador" }
   ).then((respuesta) => {
     return callback(respuesta);
@@ -81,20 +81,34 @@ usuariosModels.activar = (post, callback) => {
 };
 
 usuariosModels.iniciar = (post, callback) => {
-  modelo.find({correo: post.correo, contrasena: post.contrasena} , {contrasena: 0, _id: 0,}).then((respuesta)=>{
+  modelo.find({ correo: post.correo, contrasena: post.contrasena }, { contrasena: 0, _id: 0, }).then((respuesta) => {
     return callback(respuesta);
   })
 }
 
 usuariosModels.cargarId = (post, callback) => {
-  modelo.findById(post._id,{__v:0, contrasena:0}).then((resultado)=>{
-    return callback({datos:resultado})
+  modelo.findById(post._id, { __v: 0, contrasena: 0 }).then((resultado) => {
+    return callback({ datos: resultado })
   })
 }
 
 usuariosModels.actualizar = (post, callback) => {
-  modelo.findByIdAndUpdate( post._id, {nombre:post.nombre, apellido:post.apellido, estado:post.estado, rol:post.rol, contrasena:post.contrasena }, {contrasena: 0,__v:0}).then((resultado)=>{
-    return callback({datos: resultado})
+  modelo.findOneAndUpdate({ _id: post._id }, 
+    { nombre: post.nombre, apellido: post.apellido, estado: post.estado, rol: post.rol })
+    .then((resultado) => {
+    return callback({ estado:true })
+  }).catch((error)=>{
+    console.log(error)
+    return callback({estado:false})
+  })
+}
+
+usuariosModels.eliminar = (post, callback)=>{
+  modelo.findByIdAndDelete(post._id).then((resultado)=>{
+    return callback({estado:true})
+  }).catch((error)=>{
+    console.log(error)
+    return callback({estado:false})
   })
 }
 

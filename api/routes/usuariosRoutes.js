@@ -42,3 +42,7 @@ index.get("/usuario/cargarId/:_id",(request, response)=>{
 index.post("/usuario/actualizar", (request, response)=>{
     rutasUsuarios.actualizar(request, response)
 })
+
+index.delete("/usuario/eliminar", (request, response)=>{
+    rutasUsuarios.eliminar(request, response)
+})

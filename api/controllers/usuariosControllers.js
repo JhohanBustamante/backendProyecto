@@ -129,7 +129,7 @@ usuariosController.guardar = (request, response) => {
       response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
       return false;
     }
-        
+
     usuariosModels.guardar(post, (respuesta) => {
       if (respuesta.estado == false) {
         response.json({ estado: false, mensaje: "Error al guardar" });
@@ -224,15 +224,15 @@ usuariosController.cargarId = (request, response) => {
   post = {
     _id: request.params._id
   }
-  if(post._id == "" || post._id == undefined || post._id == null){
-    response.json( {estado: false , mensaje:"_id no cargado"} )
-  } else if(post._id.length !== 24){
-    response.json( {estado: false , mensaje:"Cantidad de caracteres erroneo"} )
-  }else {
-    usuariosModels.cargarId(post, (resultado)=>{
-      response.json({estado:true, datos: resultado})
+  if (post._id == "" || post._id == undefined || post._id == null) {
+    response.json({ estado: false, mensaje: "_id no cargado" })
+  } else if (post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Cantidad de caracteres erroneo" })
+  } else {
+    usuariosModels.cargarId(post, (resultado) => {
+      response.json({ estado: true, datos: resultado })
     })
-  } 
+  }
 }
 
 usuariosController.actualizar = (request, response) => {
@@ -240,16 +240,39 @@ usuariosController.actualizar = (request, response) => {
     _id: request.body._id,
     nombre: request.body.nombre,
     apellido: request.body.apellido,
-    contrasena: request.body.contrasena,
     rol: request.body.rol,
     estado: request.body.estado
   }
-  post.contrasena = sha256(post.contrasena + config.claveSecreta)
-  if(post.nombre == "" || post._id == "" ||  post._id.length !== 24){
-    response.json({estado:false, mensaje:"Datos invalidos"})
+  if (post.nombre == "" || post._id == "" || post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Datos invalidos" })
   } else {
-    usuariosModels.actualizar(post, (resultado)=>{
-      response.json({estado:true, datos:resultado})
+    usuariosModels.cargarId(post, (resultado) => {
+      if (resultado.datos == null) {
+        response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
+      } else {
+        usuariosModels.actualizar(post, (resultado) => {
+          response.json({ estado: true, mensaje: "Actualizado" })
+        })
+      }
+    })
+  }
+}
+
+usuariosController.eliminar = (request, response) => {
+  post = {
+    _id:request.body._id
+  }
+  if (post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Datos invalidos" })
+  } else {
+    usuariosModels.cargarId(post, (resultado) => {
+      if (resultado.datos == null) {
+        response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
+      } else {
+        usuariosModels.eliminar(post, (resultado) => {
+          response.json({ estado: true, mensaje: "Eliminado" })
+        })
+      }
     })
   }
 }
