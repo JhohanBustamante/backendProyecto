@@ -2,6 +2,181 @@ const usuariosModels = require("../models/usuariosModels.js").usuariosModels;
 const validacion = require("../validations/usuariosValidations.js").validacion;
 const usuariosController = {};
 
+usuariosController.cargarId = (request, response) => {
+  post = {
+    _id: request.params._id
+  }
+  if (post._id == "" || post._id == undefined || post._id == null) {
+    response.json({ estado: false, mensaje: "_id no cargado" })
+  } else if (post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Cantidad de caracteres erroneo" })
+  } else {
+    usuariosModels.cargarId(post, (resultado) => {
+      response.json({ estado: true, datos: resultado })
+    })
+  }
+}
+
+usuariosController.cargarTodas = (request, response) => {
+  usuariosModels.cargarTodas((resultado) => {
+    response.json({ estado: true, datos: resultado })
+  })
+}
+
+usuariosController.actualizar = (request, response) => {
+  post = {
+    _id: request.body._id,
+    nombre: request.body.nombre,
+    apellido: request.body.apellido,
+    rol: request.body.rol,
+    estado: request.body.estado
+  }
+  if (post.nombre == "" || post._id == "" || post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Datos invalidos" })
+  } else {
+    usuariosModels.cargarId(post, (resultado) => {
+      if (resultado.datos == null) {
+        response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
+      } else {
+        usuariosModels.actualizar(post, (resultado) => {
+          response.json({ estado: true, mensaje: "Actualizado" })
+        })
+      }
+    })
+  }
+}
+
+usuariosController.eliminar = (request, response) => {
+  post = {
+    _id: request.body._id
+  }
+  if (post._id.length !== 24) {
+    response.json({ estado: false, mensaje: "Datos invalidos" })
+  } else {
+    usuariosModels.cargarId(post, (resultado) => {
+      if (resultado.datos == null) {
+        response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
+      } else {
+        usuariosModels.eliminar(post, (resultado) => {
+          response.json({ estado: true, mensaje: "Eliminado" })
+        })
+      }
+    })
+  }
+}
+
+usuariosController.guardar = (request, response) => {
+  const post = {
+    nombre: request.body.nombre,
+    apellido: request.body.apellido,
+    correo: request.body.correo.toLowerCase(),
+    contrasena: request.body.contrasena,
+    estado: request.body.estado,
+    rol: request.body.rol
+  };
+
+  if (validacion.correoContrasena(post) == "datos") {
+    response.json({
+      estado: false,
+      mensaje: "Ingresa correo, contraseña, nombre y apellido",
+    });
+    return false;
+  } else if (validacion.correoContrasena(post) == "correo") {
+    response.json({ estado: false, mensaje: "Correo no válido" });
+    return false;
+  } else if (validacion.correoContrasena(post) == "contrasena") {
+    response.json({
+      estado: false,
+      mensaje:
+        "Contraseña no valida. Debe tener entre 10 y 15 caracteres, 2 minúsculas y 1 mayúscula",
+    });
+    return false;
+  }
+  usuariosModels.buscar(post, (resultado) => {
+    if (resultado.length !== 0) {
+      response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
+      return false;
+    }
+    post.contrasena = sha256(post.contrasena + config.claveSecreta);
+    usuariosModels.guardar(post, (respuesta) => {
+      if (respuesta.estado == false) {
+        response.json({ estado: false, mensaje: "Error al guardar" });
+        return false;
+      } else {
+        response.json({ estado: true, respuesta });
+      }
+    });
+  });
+};
+
+
+
+
+usuariosController.iniciar = (request, response) => {
+  post = {
+    correo: request.body.correo,
+    contrasena: request.body.contrasena,
+  };
+
+  if (validacion.inicio(post) == "datos") {
+    response.json({ estado: false, mensaje: "Ingresa correo y contraseña" });
+  } else if (validacion.inicio(post) == "correo") {
+    response.json({ estado: false, mensaje: "Correo no válido" });
+    return false;
+  } else if (validacion.inicio(post) == "contrasena") {
+    response.json({
+      estado: false,
+      mensaje: "Contraseña no valida. Debe tener entre 10 y 15 caracteres",
+    });
+    return false;
+  } else {
+    usuariosModels.buscar(post, (resultado) => {
+      if (resultado.length == 0) {
+        response.json({ estado: false, mensaje: "correo" });
+      } else if (resultado[0].estado == "inactivo") {
+        response.json({ estado: false, mensaje: "Usuario inactivo" });
+      } else {
+        usuariosModels.iniciar(post, (resultado) => {
+          if (resultado.length == 0) {
+            response.json({ estado: false, mensaje: "Contraseña incorrecta" });
+          } else {
+            request.session.correo = resultado[0].correo;
+            request.session.rol = resultado[0].rol;
+            request.session.nombre = resultado[0].nombre;
+            request.session._id = resultado[0]._id
+
+            response.json({ estado: true, mensaje: "Bienvenido" });
+          }
+        });
+      }
+    });
+    post.contrasena = sha256(post.contrasena + config.claveSecreta);
+  }
+};
+
+usuariosController.activar = (request, response) => {
+  var post = {
+    correo: request.body.correo,
+    codigo: request.body.codigo,
+  };
+  usuariosModels.buscar(post, (resultado) => {
+    if (resultado.length == 0) {
+      response.json({ estado: false, mensaje: "Correo inválido" });
+    } else {
+      usuariosModels.activar(post, (respuesta) => {
+        if (respuesta == null) {
+          response.json({ estado: false, mensaje: "Código inválido" });
+        } else {
+          response.json({
+            estado: true,
+            mensaje: "Cuenta activada correctamente",
+          });
+        }
+      });
+    }
+  });
+};
+
 usuariosController.registrar = (request, response) => {
   const post = {
     nombre: request.body.nombre,
@@ -99,48 +274,6 @@ usuariosController.registrar = (request, response) => {
   });
 };
 
-usuariosController.guardar = (request, response) => {
-  const post = {
-    nombre: request.body.nombre,
-    apellido: request.body.apellido,
-    correo: request.body.correo.toLowerCase(),
-    contrasena: request.body.contrasena,
-  };
-  if (validacion.correoContrasena(post) == "datos") {
-    response.json({
-      estado: false,
-      mensaje: "Ingresa correo, contraseña, nombre y apellido",
-    });
-    return false;
-  } else if (validacion.correoContrasena(post) == "correo") {
-    response.json({ estado: false, mensaje: "Correo no válido" });
-
-    return false;
-  } else if (validacion.correoContrasena(post) == "contrasena") {
-    response.json({
-      estado: false,
-      mensaje:
-        "Contraseña no valida. Debe tener entre 10 y 15 caracteres, 2 minúsculas y 1 mayúscula",
-    });
-    return false;
-  }
-  usuariosModels.buscar(post, (resultado) => {
-    if (resultado.length !== 0) {
-      response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
-      return false;
-    }
-
-    usuariosModels.guardar(post, (respuesta) => {
-      if (respuesta.estado == false) {
-        response.json({ estado: false, mensaje: "Error al guardar" });
-        return false;
-      } else {
-        response.json({ estado: true, respuesta });
-      }
-    });
-  });
-};
-
 usuariosController.buscar = (request, response) => {
   post = {
     correo: request.body.correo.toLowerCase(),
@@ -156,125 +289,68 @@ usuariosController.buscar = (request, response) => {
   });
 };
 
-usuariosController.activar = (request, response) => {
-  var post = {
-    correo: request.body.correo,
-    codigo: request.body.codigo,
-  };
-  usuariosModels.buscar(post, (resultado) => {
-    if (resultado.length == 0) {
-      response.json({ estado: false, mensaje: "Correo inválido" });
-    } else {
-      usuariosModels.activar(post, (respuesta) => {
-        if (respuesta == null) {
-          response.json({ estado: false, mensaje: "Código inválido" });
-        } else {
-          response.json({
-            estado: true,
-            mensaje: "Cuenta activada correctamente",
-          });
-        }
-      });
-    }
-  });
-};
-
-usuariosController.iniciar = (request, response) => {
+usuariosController.actualizarDatos = (request, response) => {
   post = {
-    correo: request.body.correo,
-    contrasena: request.body.contrasena,
-  };
-
-  if (validacion.inicio(post) == "datos") {
-    response.json({ estado: false, mensaje: "Ingresa correo y contraseña" });
-  } else if (validacion.inicio(post) == "correo") {
-    response.json({ estado: false, mensaje: "Correo no válido" });
-    return false;
-  } else if (validacion.inicio(post) == "contrasena") {
-    response.json({
-      estado: false,
-      mensaje: "Contraseña no valida. Debe tener entre 10 y 15 caracteres",
-    });
-    return false;
-  } else {
-    usuariosModels.buscar(post, (resultado) => {
-      if (resultado.length == 0) {
-        response.json({ estado: false, mensaje: "correo" });
-      } else if (resultado[0].estado == "inactivo") {
-        response.json({ estado: false, mensaje: "Usuario inactivo" });
-      } else {
-        usuariosModels.iniciar(post, (resultado) => {
-          if (resultado.length == 0) {
-            response.json({ estado: false, mensaje: "Contraseña incorrecta" });
-          } else {
-            request.session.correo = resultado[0].correo;
-            request.session.rol = resultado[0].rol;
-            request.session.nombre = resultado[0].nombre;
-
-            response.json({ estado: true, mensaje: "Bienvenido" });
-          }
-        });
-      }
-    });
-    post.contrasena = sha256(post.contrasena + config.claveSecreta);
-  }
-};
-
-usuariosController.cargarId = (request, response) => {
-  post = {
-    _id: request.params._id
-  }
-  if (post._id == "" || post._id == undefined || post._id == null) {
-    response.json({ estado: false, mensaje: "_id no cargado" })
-  } else if (post._id.length !== 24) {
-    response.json({ estado: false, mensaje: "Cantidad de caracteres erroneo" })
-  } else {
-    usuariosModels.cargarId(post, (resultado) => {
-      response.json({ estado: true, datos: resultado })
-    })
-  }
-}
-
-usuariosController.actualizar = (request, response) => {
-  post = {
-    _id: request.body._id,
-    nombre: request.body.nombre,
-    apellido: request.body.apellido,
-    rol: request.body.rol,
-    estado: request.body.estado
-  }
-  if (post.nombre == "" || post._id == "" || post._id.length !== 24) {
-    response.json({ estado: false, mensaje: "Datos invalidos" })
+    _id: request.session._id,
+    nombre: request.body.nombre
+  } 
+  if (post._id == undefined) {
+    response.json({ estado: false, mensaje: "Identificador invalido, debe iniciar sesion para usar este funcion" })
   } else {
     usuariosModels.cargarId(post, (resultado) => {
       if (resultado.datos == null) {
         response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
       } else {
-        usuariosModels.actualizar(post, (resultado) => {
+        post.contrasena = sha256(post.contrasena + config.claveSecreta);
+        usuariosModels.actualizarDatos(post, (resultado) => {
           response.json({ estado: true, mensaje: "Actualizado" })
         })
       }
-    })
+    }
+    )
   }
 }
 
-usuariosController.eliminar = (request, response) => {
-  post = {
-    _id:request.body._id
+usuariosController.datos = (request, response) => {
+  const post = {
+    _id: request.session._id
   }
-  if (post._id.length !== 24) {
-    response.json({ estado: false, mensaje: "Datos invalidos" })
+
+  if(post._id==""||post._id==undefined||post._id==null){
+    response.json({estado:false, mensaje:"Debe iniciar sesión para ver los dato"})
+    return false
+  }
+
+  usuariosModels.cargarId(post, (resultado)=>{
+    response.json({ resultado })
+  })
+}
+
+usuariosController.actualizarContrasena = (request, response) => {
+  post = {
+    _id: request.session._id,
+    contrasena: request.body.contrasena
+  } 
+  if(post.contrasena.length<10){
+    response.json({estado:false , mensaje: "Contrasena invalida"})
+  }
+  else if (post._id == undefined) {
+    response.json({ estado: false, mensaje: "Identificador invalido, debe iniciar sesion para usar este funcion" })
   } else {
     usuariosModels.cargarId(post, (resultado) => {
       if (resultado.datos == null) {
         response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
       } else {
-        usuariosModels.eliminar(post, (resultado) => {
-          response.json({ estado: true, mensaje: "Eliminado" })
+        post.contrasena = sha256(post.contrasena + config.claveSecreta);
+        usuariosModels.actualizarContrasena(post, (resultado) => {
+          request.session.destroy()
+          response.json({ estado: true, mensaje: "Actualizado" })
         })
       }
-    })
+    }
+    )
   }
+
 }
 
 module.exports.usuarios = usuariosController;

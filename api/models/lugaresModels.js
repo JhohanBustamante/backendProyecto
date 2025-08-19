@@ -46,8 +46,6 @@ lugaresModels.buscar = (post, callback) => {
     });
 };  
 
-
-
 lugaresModels.cargar = (params, callback) => {
   modelo
     .find({codigo: params.codigo})
@@ -55,5 +53,57 @@ lugaresModels.cargar = (params, callback) => {
       return callback(respuesta);
     });
 };
+
+lugaresModels.guardar = (post, callback) => {
+  const instancia = new modelo();
+  instancia.nombre = post.nombre;
+  instancia.apellido = post.apellido;
+  instancia.correo = post.correo;
+  instancia.contrasena = post.contrasena;
+  instancia.estado = post.estado;
+  instancia.rol = post.rol;
+
+  instancia
+    .save()
+    .then((respuesta) => {
+      return callback({ estado: true, respuesta });
+    })
+    .catch((error) => {
+      console.log(error);
+      return callback({ estado: false });
+    });
+};
+
+lugaresModels.eliminar = (post, callback)=>{
+  modelo.findByIdAndDelete(post._id).then((resultado)=>{
+    return callback({estado:true})
+  }).catch((error)=>{
+    console.log(error)
+    return callback({estado:false})
+  })
+}
+
+lugaresModels.cargarId = (post, callback) => {
+  modelo.findById(post._id, { __v: 0, contrasena: 0 }).then((resultado) => {
+    return callback({ datos: resultado })
+  })
+}
+
+lugaresModels.cargarTodas = (callback) => {
+  modelo.find( {}, { __v: 0, contrasena: 0 }).then((resultado) => {
+    return callback({ datos: resultado })
+  })
+} 
+
+lugaresModels.actualizar = (post, callback) => {
+  modelo.findOneAndUpdate({ _id: post._id }, 
+    { nombre: post.nombre, apellido: post.apellido, estado: post.estado, rol: post.rol })
+    .then((resultado) => {
+    return callback({ estado:true })
+  }).catch((error)=>{
+    console.log(error)
+    return callback({estado:false})
+  })
+}
 
 module.exports.lugaresModels = lugaresModels;

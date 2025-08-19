@@ -9,7 +9,6 @@ validaciones.correoContrasena = (post) => {
   let existencia = datosNoPermitidos.findIndex(
     (dato) =>
       dato == post.nombre ||
-      dato == post.apellido ||
       dato == post.correo ||
       dato == post.contrasena
   );
