@@ -10,7 +10,7 @@ anexosController.anexosProductos = (request, response) => {
         cb(null, appRoot + "/imagenes/");
       },
       filename: (req, file, cb) => {
-        cb(null, nombre);
+        cb(null, nombre + ".png");
       },
     }),
     fileFilter: (req, file, cb) => {

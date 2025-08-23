@@ -61,8 +61,6 @@ index.put("/usuario/actualizarDatos", (request, response)=>{
     rutasUsuarios.actualizarDatos(request, response)
 })
 
-
-
 index.post("/usuario/datos", (request, response)=>{
     rutasUsuarios.datos(request, response)
 })

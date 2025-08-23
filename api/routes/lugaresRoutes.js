@@ -10,7 +10,7 @@ index.post("/lugares/registrar", (request, response)=>{
     rutasLugares.registrar(request, response)
 })
 
-index.get("/lugares/cargar/:codigo", (request, response)=>{
+index.get("/lugares/cargar/:_id", (request, response)=>{
     rutasLugares.cargar(request, response)
 })
 
@@ -32,4 +32,8 @@ index.post("/lugares/guardar", seguridadMDW.admin, (request, response)=>{
 
 index.put("/lugares/actualizar", seguridadMDW.admin, (request, response)=>{
     rutasLugares.actualizar(request, response)
+})
+
+index.post("/lugares/titulos", (request, response)=>{
+    rutasLugares.titulos(request, response)
 })

@@ -6,12 +6,9 @@ const lugareschema = new Schema({
   titulo: String,
   subtitulo: String,
   descripcion: String,
-  listaUno: String,
-  listaDos: String,
-  listaTres: String,
-  listaCuatro: String,
-  listaCinco: String,
-  codigo: String
+  lista: Object, 
+  codigo: String,
+  imagen: String
 });
 
 const modelo = mongoose.model("lugares", lugareschema);
@@ -22,10 +19,7 @@ lugaresModels.registro = (post, callback) => {
   instancia.subtitulo = post.subtitulo;
   instancia.descripcion = post.descripcion;
   instancia.contrasena = post.contrasena;
-  instancia.listaDos = post.listaDos;
-  instancia.listaTres = post.listaTres;
-  instancia.listaCuatro = post.listaCuatro;
-  instancia.listaCinco = post.listaCinco;
+  instancia.lista = post.lista
   instancia.codigo = post.codigo
   instancia
     .save()
@@ -48,7 +42,7 @@ lugaresModels.buscar = (post, callback) => {
 
 lugaresModels.cargar = (params, callback) => {
   modelo
-    .find({codigo: params.codigo})
+    .find({_id: params._id})
     .then((respuesta) => {
       return callback(respuesta);
     });
@@ -56,17 +50,16 @@ lugaresModels.cargar = (params, callback) => {
 
 lugaresModels.guardar = (post, callback) => {
   const instancia = new modelo();
-  instancia.nombre = post.nombre;
-  instancia.apellido = post.apellido;
-  instancia.correo = post.correo;
-  instancia.contrasena = post.contrasena;
-  instancia.estado = post.estado;
-  instancia.rol = post.rol;
-
+  instancia.titulo = post.titulo;
+  instancia.subtitulo = post.subtitulo;
+  instancia.descripcion = post.descripcion;
+  instancia.lista = post.lista
+  instancia.codigo = post.codigo
+  instancia.imagen = post.imagen
   instancia
     .save()
     .then((respuesta) => {
-      return callback({ estado: true, respuesta });
+      return callback({ estado: true });
     })
     .catch((error) => {
       console.log(error);
@@ -90,14 +83,14 @@ lugaresModels.cargarId = (post, callback) => {
 }
 
 lugaresModels.cargarTodas = (callback) => {
-  modelo.find( {}, { __v: 0, contrasena: 0 }).then((resultado) => {
+  modelo.find( {}, { __v: 0}).then((resultado) => {
     return callback({ datos: resultado })
   })
 } 
 
 lugaresModels.actualizar = (post, callback) => {
   modelo.findOneAndUpdate({ _id: post._id }, 
-    { nombre: post.nombre, apellido: post.apellido, estado: post.estado, rol: post.rol })
+    { titulo: post.titulo, subtitulo: post.subtitulo, descripcion: post.descripcion, imagen: post.imagen })
     .then((resultado) => {
     return callback({ estado:true })
   }).catch((error)=>{
@@ -105,5 +98,15 @@ lugaresModels.actualizar = (post, callback) => {
     return callback({estado:false})
   })
 }
+
+lugaresModels.titulos = (post, callback) => {
+  modelo
+    .find({}, { titulo: 1, _id: 0 })
+    .then((respuesta) => {
+      return callback(respuesta);
+    });
+}
+
+
 
 module.exports.lugaresModels = lugaresModels;

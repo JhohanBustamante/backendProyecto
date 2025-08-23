@@ -31,7 +31,7 @@ lugaresController.registrar = (request, response) => {
 
 lugaresController.cargar = (request, response) => {
   lugaresModels.cargar(request.params, (resultado) => {
-    console.log(resultado);
+    console.log(request.params);
     response.json(resultado);
   });
 };
@@ -47,6 +47,18 @@ lugaresController.buscar = (request, response) => {
       response.json({ estado: false, mensaje: "Usuario inactivo" });
     } else {
       response.json({ estado: true, valor: resultado[0] });
+    }
+  });
+};
+
+lugaresController.titulos = (request, response) => {
+  post = {
+  };
+  lugaresModels.titulos(post, (resultado) => {
+    if (resultado.length == 0) {
+      response.json({ estado: false, mensaje: "No hay titulos" });
+    } else {
+      response.json({ estado: true, valor: resultado });
     }
   });
 };
@@ -77,24 +89,17 @@ lugaresController.cargarTodas = (request, response) => {
 lugaresController.actualizar = (request, response) => {
   post = {
     _id: request.body._id,
-    nombre: request.body.nombre,
-    apellido: request.body.apellido,
-    rol: request.body.rol,
-    estado: request.body.estado
+    titulo: request.body.titulo,
+    subtitulo: request.body.subtitulo,
+    descripcion: request.body.descripcion,
+    lista: request.body.lista,
+    codigo: request.body.codigo,
+    imagen: request.body.imagen
   }
-  if (post.nombre == "" || post._id == "" || post._id.length !== 24) {
-    response.json({ estado: false, mensaje: "Datos invalidos" })
-  } else {
-    lugaresModels.cargarId(post, (resultado) => {
-      if (resultado.datos == null) {
-        response.json({ estado: false, mensaje: "No hay usuarios con ese _id" })
-      } else {
-        lugaresModels.actualizar(post, (resultado) => {
-          response.json({ estado: true, mensaje: "Actualizado" })
-        })
-      }
-    })
-  }
+
+  lugaresModels.actualizar(post, (resultado) => {
+    response.json({ estado: true, mensaje: "Actualizado" })
+  })
 }
 
 lugaresController.eliminar = (request, response) => {
@@ -118,46 +123,23 @@ lugaresController.eliminar = (request, response) => {
 
 lugaresController.guardar = (request, response) => {
   const post = {
-    nombre: request.body.nombre,
-    apellido: request.body.apellido,
-    correo: request.body.correo.toLowerCase(),
-    contrasena: request.body.contrasena,
-    estado: request.body.estado,
-    rol: request.body.rol
+    titulo: request.body.titulo,
+    subtitulo: request.body.subtitulo,
+    descripcion: request.body.descripcion,
+    lista: request.body.lista,
+    codigo: request.body.codigo,
+    imagen: request.body.imagen
   };
 
-  if (validacion.correoContrasena(post) == "datos") {
-    response.json({
-      estado: false,
-      mensaje: "Ingresa correo, contraseña, nombre y apellido",
-    });
-    return false;
-  } else if (validacion.correoContrasena(post) == "correo") {
-    response.json({ estado: false, mensaje: "Correo no válido" });
-    return false;
-  } else if (validacion.correoContrasena(post) == "contrasena") {
-    response.json({
-      estado: false,
-      mensaje:
-        "Contraseña no valida. Debe tener entre 10 y 15 caracteres, 2 minúsculas y 1 mayúscula",
-    });
-    return false;
-  }
-  lugaresModels.buscar(post, (resultado) => {
-    if (resultado.length !== 0) {
-      response.json({ estado: false, mensaje: "Correo en uso, prueba otro" });
+
+  lugaresModels.guardar(post, (respuesta) => {
+    if (respuesta.estado == false) {
+      response.json({ estado: false, mensaje: "Error al guardar" });
       return false;
+    } else {
+      response.json({ estado: true, respuesta });
     }
-    post.contrasena = sha256(post.contrasena + config.claveSecreta);
-    lugaresModels.guardar(post, (respuesta) => {
-      if (respuesta.estado == false) {
-        response.json({ estado: false, mensaje: "Error al guardar" });
-        return false;
-      } else {
-        response.json({ estado: true, respuesta });
-      }
-    });
   });
-};
+}
 
 module.exports.lugares = lugaresController;
