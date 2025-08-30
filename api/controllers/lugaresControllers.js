@@ -14,7 +14,12 @@ lugaresController.registrar = (request, response) => {
     listaCinco: request.body.listaCinco,
     codigo: request.body.codigo,
   };
-  lugaresModels.buscar(post, (resultado) => {
+
+  if(validacion.datos(post) !== true){
+    console.log(validacion.datos(post))
+    response.json({estado:false, mensaje:validacion.datos(post)})
+  } else {
+    lugaresModels.buscar(post, (resultado) => {
     if (resultado.length !== 0) {
       response.json({ estado: false, mensaje: "Codigo en uso, prueba otro" });
       return false;
@@ -27,6 +32,7 @@ lugaresController.registrar = (request, response) => {
       });
     }
   });
+  }
 };
 
 lugaresController.cargar = (request, response) => {
@@ -94,7 +100,8 @@ lugaresController.actualizar = (request, response) => {
     descripcion: request.body.descripcion,
     lista: request.body.lista,
     codigo: request.body.codigo,
-    imagen: request.body.imagen
+    imagen: request.body.imagen,
+    resumen: request.body.resumen
   }
 
   lugaresModels.actualizar(post, (resultado) => {
@@ -126,11 +133,14 @@ lugaresController.guardar = (request, response) => {
     titulo: request.body.titulo,
     subtitulo: request.body.subtitulo,
     descripcion: request.body.descripcion,
-    lista: request.body.lista,
     codigo: request.body.codigo,
-    imagen: request.body.imagen
+    imagen: request.body.imagen,
+    resumen: request.body.resumen,
   };
 
+  if(validacion.datos(post) !== true){
+    response.json({estado:false, mensaje:validacion.datos(post)})
+  } else {
 
   lugaresModels.guardar(post, (respuesta) => {
     if (respuesta.estado == false) {
@@ -140,6 +150,7 @@ lugaresController.guardar = (request, response) => {
       response.json({ estado: true, respuesta });
     }
   });
+  }
 }
 
 module.exports.lugares = lugaresController;

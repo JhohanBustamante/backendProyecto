@@ -1,27 +1,26 @@
-const lugaresModels = {};
+const lotesModels = {};
 const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-const lugareschema = new Schema({
+const loteschema = new Schema({
   titulo: String,
-  subtitulo: String,
+  metrosCuadrados: Number,
+  precioMetroCuadrado: Number,
+  lugar: String,
   descripcion: String,
-  lista: Object, 
-  codigo: String,
-  imagen: String,
-  resumen: String
+  precio: Number
 });
 
-const modelo = mongoose.model("lugares", lugareschema);
+const modelo = mongoose.model("lotes", loteschema);
 
-lugaresModels.registro = (post, callback) => {
+lotesModels.registro = (post, callback) => {
   const instancia = new modelo();
+  instancia.metrosCuadrados = post.metrosCuadrados;
   instancia.titulo = post.titulo;
-  instancia.subtitulo = post.subtitulo;
   instancia.descripcion = post.descripcion;
-  instancia.contrasena = post.contrasena;
-  instancia.lista = post.lista
-  instancia.codigo = post.codigo
+  instancia.lugar = post.lugar;
+  instancia.precioMetroCuadrado = post.precioMetroCuadrado;
+  instancia.precio = post.precio
   instancia
     .save()
     .then((respuesta) => {
@@ -33,7 +32,7 @@ lugaresModels.registro = (post, callback) => {
     });
 };
 
-lugaresModels.buscar = (post, callback) => {
+lotesModels.buscar = (post, callback) => {
   modelo
     .find({ codigo: post.codigo }, { contrasena: 0, _id: 0 })
     .then((respuesta) => {
@@ -41,7 +40,7 @@ lugaresModels.buscar = (post, callback) => {
     });
 };  
 
-lugaresModels.cargar = (params, callback) => {
+lotesModels.cargar = (params, callback) => {
   modelo
     .find({_id: params._id})
     .then((respuesta) => {
@@ -49,15 +48,14 @@ lugaresModels.cargar = (params, callback) => {
     });
 };
 
-lugaresModels.guardar = (post, callback) => {
+lotesModels.guardar = (post, callback) => {
   const instancia = new modelo();
+  instancia.metrosCuadrados = post.metrosCuadrados;
   instancia.titulo = post.titulo;
-  instancia.subtitulo = post.subtitulo;
   instancia.descripcion = post.descripcion;
-  instancia.lista = post.lista
-  instancia.codigo = post.codigo
-  instancia.imagen = post.imagen
-  instancia.resumen = post.resumen
+  instancia.lugar = post.lugar;
+  instancia.precioMetroCuadrado = post.precioMetroCuadrado;
+  instancia.precio = post.precio
   instancia
     .save()
     .then((respuesta) => {
@@ -69,7 +67,7 @@ lugaresModels.guardar = (post, callback) => {
     });
 };
 
-lugaresModels.eliminar = (post, callback)=>{
+lotesModels.eliminar = (post, callback)=>{
   modelo.findByIdAndDelete(post._id).then((resultado)=>{
     return callback({estado:true})
   }).catch((error)=>{
@@ -78,21 +76,21 @@ lugaresModels.eliminar = (post, callback)=>{
   })
 }
 
-lugaresModels.cargarId = (post, callback) => {
-  modelo.findById(post._id, { __v: 0 }).then((resultado) => {
+lotesModels.cargarId = (post, callback) => {
+  modelo.findById(post._id, { __v: 0, contrasena: 0 }).then((resultado) => {
     return callback({ datos: resultado })
   })
 }
 
-lugaresModels.cargarTodas = (callback) => {
+lotesModels.cargarTodas = (callback) => {
   modelo.find( {}, { __v: 0}).then((resultado) => {
     return callback({ datos: resultado })
   })
 } 
 
-lugaresModels.actualizar = (post, callback) => {
+lotesModels.actualizar = (post, callback) => {
   modelo.findOneAndUpdate({ _id: post._id }, 
-    { titulo: post.titulo, subtitulo: post.subtitulo, descripcion: post.descripcion, imagen: post.imagen, resumen: post.resumen })
+    { precioMetroCuadrado: post.precioMetroCuadrado, lugar: post.lugar, descripcion: post.descripcion, metrosCuadrados: post.metrosCuadrados, titulo: post.titulo })
     .then((resultado) => {
     return callback({ estado:true })
   }).catch((error)=>{
@@ -101,7 +99,7 @@ lugaresModels.actualizar = (post, callback) => {
   })
 }
 
-lugaresModels.titulos = (post, callback) => {
+lotesModels.titulos = (post, callback) => {
   modelo
     .find({}, { titulo: 1, _id: 0 })
     .then((respuesta) => {
@@ -109,6 +107,4 @@ lugaresModels.titulos = (post, callback) => {
     });
 }
 
-
-
-module.exports.lugaresModels = lugaresModels;
+module.exports.lotesModels = lotesModels;

@@ -67,6 +67,7 @@ index.use(
 
 require("./api/routes/usuariosRoutes.js");
 require("./api/routes/lugaresRoutes.js");
+require("./api/routes/lotesRoutes.js");
 require("./api/routes/anexosRoutes.js");
 
 index.use(
