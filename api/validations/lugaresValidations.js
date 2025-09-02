@@ -17,7 +17,7 @@ validaciones.datos = (post) => {
             if(llaves[i]=='codigo') {
                 continue
             }
-            if (existencia !== -1) return llaves[i]
+            if (existencia !== -1) return "Ingresar valor: " + llaves[i]
         }
         return true;
     }

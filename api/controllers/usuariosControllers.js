@@ -109,9 +109,6 @@ usuariosController.guardar = (request, response) => {
   });
 };
 
-
-
-
 usuariosController.iniciar = (request, response) => {
   post = {
     correo: request.body.correo,

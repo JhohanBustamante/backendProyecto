@@ -103,7 +103,7 @@ lugaresModels.actualizar = (post, callback) => {
 
 lugaresModels.titulos = (post, callback) => {
   modelo
-    .find({}, { titulo: 1, _id: 0 })
+    .find({}, { titulo: 1, _id: 1 })
     .then((respuesta) => {
       return callback(respuesta);
     });

@@ -82,6 +82,7 @@ lugaresController.cargarId = (request, response) => {
   } else {
     lugaresModels.cargarId(post, (resultado) => {
       response.json({ estado: true, datos: resultado })
+      console.log(resultado.datos.titulo)
     })
   }
 }
@@ -141,7 +142,6 @@ lugaresController.guardar = (request, response) => {
   if(validacion.datos(post) !== true){
     response.json({estado:false, mensaje:validacion.datos(post)})
   } else {
-
   lugaresModels.guardar(post, (respuesta) => {
     if (respuesta.estado == false) {
       response.json({ estado: false, mensaje: "Error al guardar" });

@@ -34,6 +34,6 @@ index.put("/lugares/actualizar", seguridadMDW.admin, (request, response)=>{
     rutasLugares.actualizar(request, response)
 })
 
-index.post("/lugares/titulos", (request, response)=>{
+index.get("/lugares/titulos", (request, response)=>{
     rutasLugares.titulos(request, response)
 })

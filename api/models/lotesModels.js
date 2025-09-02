@@ -1,5 +1,6 @@
 const lotesModels = {};
 const mongoose = require("mongoose");
+const { lotes } = require("../controllers/lotesControllers");
 var Schema = mongoose.Schema;
 
 const loteschema = new Schema({
@@ -8,29 +9,11 @@ const loteschema = new Schema({
   precioMetroCuadrado: Number,
   lugar: String,
   descripcion: String,
-  precio: Number
+  precio: Number,
+  lugarNombre: String
 });
 
 const modelo = mongoose.model("lotes", loteschema);
-
-lotesModels.registro = (post, callback) => {
-  const instancia = new modelo();
-  instancia.metrosCuadrados = post.metrosCuadrados;
-  instancia.titulo = post.titulo;
-  instancia.descripcion = post.descripcion;
-  instancia.lugar = post.lugar;
-  instancia.precioMetroCuadrado = post.precioMetroCuadrado;
-  instancia.precio = post.precio
-  instancia
-    .save()
-    .then((respuesta) => {
-      return callback({ estado: true });
-    })
-    .catch((error) => {
-      console.log(error);
-      return callback({ estado: false });
-    });
-};
 
 lotesModels.buscar = (post, callback) => {
   modelo
@@ -56,6 +39,7 @@ lotesModels.guardar = (post, callback) => {
   instancia.lugar = post.lugar;
   instancia.precioMetroCuadrado = post.precioMetroCuadrado;
   instancia.precio = post.precio
+  instancia.lugarNombre = post.lugarNombre
   instancia
     .save()
     .then((respuesta) => {
@@ -90,12 +74,21 @@ lotesModels.cargarTodas = (callback) => {
 
 lotesModels.actualizar = (post, callback) => {
   modelo.findOneAndUpdate({ _id: post._id }, 
-    { precioMetroCuadrado: post.precioMetroCuadrado, lugar: post.lugar, descripcion: post.descripcion, metrosCuadrados: post.metrosCuadrados, titulo: post.titulo })
+    { precioMetroCuadrado: post.precioMetroCuadrado, lugar: post.lugar, descripcion: post.descripcion, metrosCuadrados: post.metrosCuadrados, 
+      titulo: post.titulo, lugarNombre:post.lugarNombre, precio:post.precio })
     .then((resultado) => {
     return callback({ estado:true })
   }).catch((error)=>{
     console.log(error)
     return callback({estado:false})
+  })
+}
+
+lotesModels.cargarPorlugar = (post, callback) => {
+  console.log(post)
+  modelo.find({lugar:post.lugar})
+  .then((respuesta)=>{
+    return callback({datos:respuesta});
   })
 }
 

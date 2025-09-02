@@ -22,6 +22,10 @@ index.get("/lotes/cargarId/:_id", (request, response)=>{
     rutasLotes.cargarId(request, response)
 })
 
+index.get("/lotes/cargarPorLugar/:lugar", (request, response)=>{
+    rutasLotes.cargarPorLugar(request, response)
+})
+
 index.post("/lotes/guardar", seguridadMDW.admin, (request, response)=>{
     rutasLotes.guardar(request,response)
 })
