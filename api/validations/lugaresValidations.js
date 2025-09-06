@@ -7,9 +7,7 @@ let existencia
 
 validaciones.datos = (post) => {
     llaves = Object.keys(post)
-    console.log("Hola")
-            console.log(post[llaves[0]])
-
+    
     if (llaves.length == 0) return "vacio"
     else {
         for (i = 0; i < llaves.length; i++) {

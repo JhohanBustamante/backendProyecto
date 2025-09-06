@@ -14,6 +14,7 @@ const mongoStore = require("connect-mongo");
 global.path = require("path");
 global.appRoot = path.resolve(__dirname);
 global.multer = require("multer")
+
 mongoose
   .connect("mongodb://127.0.0.1:27017/" + config.bd)
   .then((respuesta) => {
